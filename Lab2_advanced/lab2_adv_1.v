@@ -34,7 +34,9 @@ always @* begin
     H[1] = code[10] ^ code[9] ^ code[6] ^ code[5] ^ code[2] ^ code[1];
     H[2] = code[8] ^ code[7] ^ code[6] ^ code[5] ^ code[0];
     H[3] = code[4] ^ code[3] ^ code[2] ^ code[1] ^ code[0];
+end
 
+always @* begin
     if(H > 12) begin
         next_out = 4'b0;
         next_raw_data = 8'b0;
@@ -57,7 +59,7 @@ always @* begin
     end
 end
 
-always @(posedge clk, negedge rst_n) begin
+always @(posedge clk) begin
     if (~rst_n) begin
         out <= 4'b0;
         raw_data <= 8'b0;
