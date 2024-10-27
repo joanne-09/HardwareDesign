@@ -60,19 +60,8 @@ module note_gen(
 
     // Assign the amplitude of the note
     // Volume is controlled here
-    reg [15:0] vol_high, vol_low;
-    always @* begin
-        case (volume)
-            3'd1: begin vol_high = 16'h9000; vol_low = 16'h8000; end
-            3'd2: begin vol_high = 16'hA000; vol_low = 16'h6000; end
-            3'd3: begin vol_high = 16'hC000; vol_low = 16'h4000; end
-            3'd4: begin vol_high = 16'hE000; vol_low = 16'h2000; end
-            3'd5: begin vol_high = 16'hF000; vol_low = 16'h1000; end
-            default : begin vol_high = 16'hC000; vol_low = 16'h4000; end
-        endcase
-    end
     assign audio_left = (note_div_left == 22'd1) ? 16'h0000 : 
-                                (b_clk == 1'b0) ? vol_high : vol_low;
+                                (b_clk == 1'b0) ? 16'hE000 >> (5 - volume) : 16'h2000 >> (5 - volume);
     assign audio_right = (note_div_right == 22'd1) ? 16'h0000 : 
-                                (c_clk == 1'b0) ? vol_high : vol_low;
+                                (c_clk == 1'b0) ? 16'hE000 >> (5 - volume) : 16'h2000 >> (5 - volume);
 endmodule
