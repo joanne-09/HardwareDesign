@@ -59,8 +59,9 @@ module lab4_3(
     /*------------------------------------------------------------------------*/
 
     // clkDiv22
-    wire clkDiv22;
+    wire clkDiv16;
     clock_divider #(.n(22)) clock_22(.clk(clk), .clk_div(clkDiv22));    // for audio
+    clock_divider #(.n(16)) clock_16(.clk(clk), .clk_div(clkDiv16));
     // freq_outL, freq_outR
     // Note gen makes no sound, if freq_out = 50000000 / `silence = 1
     assign freq_outL = 50000000 / freqL;
@@ -84,10 +85,10 @@ module lab4_3(
         9'b0_0011_1011	// j => 3B
     };
 
-    debounce dbVup(.clk(clk), .pb(volUP), .pb_debounced(db_volUP));
-    debounce dbVdown(.clk(clk), .pb(volDOWN), .pb_debounced(db_volDOWN));
-    debounce dbOup(.clk(clk), .pb(octaveUP), .pb_debounced(db_octaveUP));
-    debounce dbOdown(.clk(clk), .pb(octaveDOWN), .pb_debounced(db_octaveDOWN));
+    debounce dbVup(.clk(clkDiv16), .pb(volUP), .pb_debounced(db_volUP));
+    debounce dbVdown(.clk(clkDiv16), .pb(volDOWN), .pb_debounced(db_volDOWN));
+    debounce dbOup(.clk(clkDiv16), .pb(octaveUP), .pb_debounced(db_octaveUP));
+    debounce dbOdown(.clk(clkDiv16), .pb(octaveDOWN), .pb_debounced(db_octaveDOWN));
     one_pulse opVup(.clk(clk), .pb_in(db_volUP), .pb_out(op_volUP));
     one_pulse opVdown(.clk(clk), .pb_in(db_volDOWN), .pb_out(op_volDOWN));
     one_pulse opOup(.clk(clk), .pb_in(db_octaveUP), .pb_out(op_octaveUP));
@@ -196,7 +197,8 @@ module lab4_3(
     always @(posedge clk, posedge rst) begin
         if(rst) nums <= 16'd0;
         else begin
-            nums <= {8'h00, note_num, 1'b0, octave};
+            if(last_key != 9'b0) nums <= {8'h00, note_num, 1'b0, octave};
+            else nums <= 16'b0;
         end
     end
 
