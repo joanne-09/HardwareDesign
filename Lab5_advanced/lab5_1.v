@@ -65,7 +65,7 @@ module mem_addr_gen(
     reg [7:0] next_x, next_y, out_x, out_y;
 
     assign pixel_addr = ((h_cnt >> 1) + 320 * (v_cnt >> 1) + 
-                            position_y * 320 + ((h_cnt >> 1) - position_x)) % 76800;  //640*480 --> 320*240 
+                            position_y * 320 + (position_x  - ((h_cnt >> 1) % 320) * hmir)) % 76800;  //640*480 --> 320*240 
 
     always @ (posedge clk or posedge rst) begin
         if(rst) position_y <= 0;
@@ -104,11 +104,11 @@ module mem_addr_gen(
     // end
 
     always @(*) begin
-        if(!hmir) next_x = 0;
-        else next_x = 320;
+        if(!hmir) next_x = 320;
+        else next_x = 319;
     end
 
-    // hande next y
+    // handle next y
     always @(*) begin
         if(!en) next_y = position_y;
         else begin
@@ -119,7 +119,7 @@ module mem_addr_gen(
             else if(position_y > 0 && dir)
                 next_y = position_y - 1;
             else
-                next_y = 240;
+                next_y = 239;
         end
     end
     
