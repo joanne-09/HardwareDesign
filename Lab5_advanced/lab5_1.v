@@ -104,7 +104,7 @@ module mem_addr_gen(
     // end
 
     always @(*) begin
-        if(!hmir) next_x = 320;
+        if(!hmir) next_x = 0;
         else next_x = 319;
     end
 
