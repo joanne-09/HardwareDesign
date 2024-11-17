@@ -61,11 +61,42 @@ module mem_addr_gen(
     output [16:0] pixel_addr
 );
     
-    reg [7:0] position_x, position_y; // handle picture movement
-    reg [7:0] next_x, next_y, out_x, out_y;
+    // 799 524
+    wire [9:0] h_center, v_center;
+    reg [8:0] position_x, position_y, next_x, next_y;
+    reg [9:0] out_x, out_y;
+    reg [1:0] magnify;
 
-    assign pixel_addr = ((h_cnt >> 1) + 320 * (v_cnt >> 1) + 
-                            position_y * 320 + (position_x  - ((h_cnt >> 1) % 320) * hmir)) % 76800;  //640*480 --> 320*240 
+    assign h_center = 80;
+    assign v_center = 60;
+    assign pixel_addr = enlarge ? ((out_y + v_center) * 320 + out_x + h_center) % 76800 : (out_y * 320 + out_x) % 76800;
+    // assign pixel_addr = (out_y * 320 + out_x) % 76800;  // 640*480 --> 320*240
+
+    always @(*) begin
+        if(!hmir) out_x = (h_cnt >> magnify) + position_x;
+        else begin
+            if((h_cnt >> magnify) < (319 - position_x))
+                out_x = (319 - position_x) - (h_cnt >> magnify);
+            else
+                out_x = 319 + (319 - position_x) - (h_cnt >> magnify);
+        end
+    end
+
+    always @(*) begin
+        if(!vmir) out_y = (v_cnt >> magnify) + position_y;
+        else begin
+            if((v_cnt >> magnify) < (239 - position_y))
+                out_y = (239 - position_y) - (v_cnt >> magnify);
+            else
+                out_y = 239 + (239 - position_y) - (v_cnt >> magnify);
+        end
+    end
+
+    // handle magnify
+    always @(*) begin
+        if(enlarge) magnify <= 2;
+        else magnify <= 1;
+    end
 
     always @ (posedge clk or posedge rst) begin
         if(rst) position_y <= 0;
@@ -78,34 +109,18 @@ module mem_addr_gen(
     end
 
     // handle next x
-    // always @(*) begin
-    //     if(!en) next_x = position_x;
-    //     else begin
-    //         if(!hmir) begin
-    //             if(position_x < 319 && dir)
-    //                 next_x = position_x + 1;
-    //             else if(position_x == 320 && dir)
-    //                 next_x = 0;
-    //             else if(position_x > 0 && !dir)
-    //                 next_x = position_x - 1;
-    //             else
-    //                 next_x = 320;
-    //         end else begin
-    //             if(position_x < 319 && !dir)
-    //                 next_x = position_x + 1;
-    //             else if(position_x == 320 && !dir)
-    //                 next_x = 0;
-    //             else if(position_x > 0 && dir)
-    //                 next_x = position_x - 1;
-    //             else
-    //                 next_x = 320;
-    //         end
-    //     end
-    // end
-
     always @(*) begin
-        if(!hmir) next_x = 0;
-        else next_x = 319;
+        if(!en) next_x = position_x;
+        else begin
+            if(position_x < 319 && dir)
+                next_x = position_x + 1;
+            else if(position_x == 319 && dir)
+                next_x = 0;
+            else if(position_x > 0 && !dir)
+                next_x = position_x - 1;
+            else
+                next_x = 319;
+        end
     end
 
     // handle next y
