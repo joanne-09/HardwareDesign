@@ -188,7 +188,9 @@ module lab5_2 (
                         end
                     end else if(key2 == 18 && !key_down[KEY_CODES[key1]] && curkey != key1) begin
                         // second key and first key is not pressed
-                        key1 = curkey;
+                        if(curkey < 16 && !flipped[15-curkey]) key1 = curkey;
+                        else if(curkey < 16 && flipped[15-curkey]) key1 = 18;
+                        else key1 = curkey;
                     end
                 end
             end
