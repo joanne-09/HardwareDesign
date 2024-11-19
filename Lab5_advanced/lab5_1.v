@@ -112,11 +112,11 @@ module mem_addr_gen(
     always @(*) begin
         if(!en) next_x = position_x;
         else begin
-            if(position_x < 319 && dir)
+            if(position_x < 319 && !dir)
                 next_x = position_x + 1;
-            else if(position_x == 319 && dir)
+            else if(position_x == 319 && !dir)
                 next_x = 0;
-            else if(position_x > 0 && !dir)
+            else if(position_x > 0 && dir)
                 next_x = position_x - 1;
             else
                 next_x = 319;
@@ -127,11 +127,11 @@ module mem_addr_gen(
     always @(*) begin
         if(!en) next_y = position_y;
         else begin
-            if(position_y < 239 && !dir)
+            if(position_y < 239 && dir)
                 next_y = position_y + 1;
-            else if(position_y == 239 && !dir)
+            else if(position_y == 239 && dir)
                 next_y = 0;
-            else if(position_y > 0 && dir)
+            else if(position_y > 0 && !dir)
                 next_y = position_y - 1;
             else
                 next_y = 239;
